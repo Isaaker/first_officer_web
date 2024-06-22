@@ -115,6 +115,44 @@
      transform: scale(0.95);
     }
 
+    a.discord-button{
+     background: linear-gradient(to right,#196BCA ,#6433E0);
+     background-color: #196BCA;
+     color: #fff;
+     font-family: Arial;
+     font-size: 25px;
+     font-weight: 800;
+     font-style: normal;
+     text-decoration: none;
+     padding: 14px 15px;
+     border: 0px solid #000;
+     border-radius: 10px;
+     display: inline-flex;
+     justify-content: center;
+     align-items: center;
+     text-shadow: 2px 2px 0px #000;
+     top: 54%;
+     position: absolute;
+     left: 41%;
+    }
+    a.discord-button span{
+     margin-right: 15px;
+     display: block;
+     width: 29px;
+     height: 29px;
+     background-image: url("https://www.svgrepo.com/download/331368/discord-v2.svg");
+     background-repeat: no-repeat;
+     background-size: contain;
+     transform: rotate(0deg);
+    }
+    a.discord-button:hover{
+     background: linear-gradient(to right,#5482d0 ,#7d5ee3);
+     background-color: #5482d0;
+    }
+    a.discord-button:active{
+     transform: scale(0.95);
+    }
+    
     .center_text{
       left: 0;
       line-height: 200px;
@@ -124,6 +162,8 @@
       top: 50%;
       width: 100%;
     }
+
+    
 
   </style>
 </head>
@@ -141,7 +181,7 @@
     <center>
       <h1 class="center_text">First Officer Bot. Ready for takeoff!</h1>
       <br>
-      <a class="telegram-button" href="https://t.me/first_officer_bot"><span></span>Get on Telegram</a>
+      <a class="telegram-button" href="https://t.me/first_officer_bot"><span></span>Get on Telegram</a> <a class="discord" href="https://discord.com/oauth2/authorize?client_id=1232346605731057685"><span></span>Get on Discord</a>
     </center>
   </main>
 
