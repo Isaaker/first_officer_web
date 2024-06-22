@@ -77,6 +77,15 @@
       align-items: center;
     }
 
+    .button-div{
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      top: 54%;
+      left: 41%;
+      position: absolute;
+    }
+
     a.telegram-button{
      background: linear-gradient(to right,#196BCA ,#6433E0);
      background-color: #196BCA;
@@ -89,13 +98,7 @@
      padding: 14px 15px;
      border: 0px solid #000;
      border-radius: 10px;
-     display: inline-flex;
-     justify-content: center;
-     align-items: center;
      text-shadow: 2px 2px 0px #000;
-     top: 54%;
-     position: absolute;
-     left: 41%;
     }
     a.telegram-button span{
      margin-right: 15px;
@@ -116,7 +119,7 @@
     }
 
     a.discord-button{
-     background: linear-gradient(to right,#196BCA ,#6433E0);
+      background: linear-gradient(to right,#196BCA ,#6433E0);
      background-color: #196BCA;
      color: #fff;
      font-family: Arial;
@@ -127,13 +130,7 @@
      padding: 14px 15px;
      border: 0px solid #000;
      border-radius: 10px;
-     display: inline-flex;
-     justify-content: center;
-     align-items: center;
      text-shadow: 2px 2px 0px #000;
-     top: 54%;
-     position: absolute;
-     left: 41%;
     }
     a.discord-button span{
      margin-right: 15px;
@@ -180,10 +177,12 @@
   <main>
     <center>
       <h1 class="center_text">First Officer Bot. Ready for takeoff!</h1>
-      <br>
-      <a class="telegram-button" href="https://t.me/first_officer_bot"><span></span>Get on Telegram</a> <br> <a class="discord-button" href="https://discord.com/oauth2/authorize?client_id=1232346605731057685"><span></span>Get on Discord</a>
     </center>
-  </main>
+    <br>
+    <div class="button-div">
+      <a class="telegram-button" href="https://t.me/first_officer_bot"><span></span>Get on Telegram</a> <br> <a class="discord-button" href="https://discord.com/oauth2/authorize?client_id=1232346605731057685"><span></span>Get on Discord</a>
+    </div>
+    </main>
 
   <!-- Footer -->
   <footer>
