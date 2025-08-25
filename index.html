@@ -1,197 +1,627 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>First Officer Bot - Ready for takeoff!</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>First Officer Bot - Takeoff</title>
+    <!-- Include Tailwind CSS for a modern and responsive design -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Include Font Awesome icons for features -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for the site */
+        :root {
+            --primary-color: #3b82f6; /* Tailwind blue-500 */
+            --bg-color: #1f2937; /* Tailwind gray-800 */
+            --card-color: #374151; /* Tailwind gray-700 */
+            --text-color: #f3f4f6; /* Tailwind gray-100 */
 
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400&display=swap" rel="stylesheet">
+            /* New loading screen CSS variables */
+            --sky-top: #7ec8ff;
+            --sky-bottom: #4aa3ff;
+            --cloud-white: rgba(255,255,255,0.95);
+            --cloud-blur: 6px;
+            --plane-width: clamp(200px, 30vw, 420px);
+            --bob-duration: 4s;
+            --dots-duration: 1.5s;
+        }
 
-  <!-- Favicon -->
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <!--- .ico Favicon -->
-  <link rel="icon" type="image/ico" href="./favicon/favicon.ico">
+        /* Overall body styling for the main content */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
 
-  <!--- .png Favicon -->
-  <link rel="icon" type="image/png" sizes="32x32" href="./favicon/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="./favicon/favicon-16x16.png">
+        /* Main app container */
+        .app-container {
+            display: none;
+            width: 100%;
+            height: 100vh;
+            overflow: auto; /* Allow scrolling for main content */
+        }
+        
+        /* New loading screen styles */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease-out;
+            background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 100%);
+            overflow: hidden;
+        }
 
-  <!--  Apple Devices Favicon -->
-  <link rel="apple-touch-icon" sizes="180x180" href="./favicon/apple-touch-icon.png">
+        /* User-provided CSS for the clouds, plane, and text */
+        .sky{
+            position:absolute;
+            inset:0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0) 40%);
+            pointer-events:none;
+            z-index:0;
+        }
 
-  <!-- Android (Chrome) Favicon -->
-  <link rel="icon" type="image/png" sizes="512x512" href="./favicon/android-chrome-512x512.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="./favicon/android-chrome-192x192.png">
+        .cloud{
+            position:absolute;
+            background:
+                radial-gradient(36px 24px at 20% 40%, var(--cloud-white) 0%, rgba(255,255,255,0.85) 40%, rgba(255,255,255,0.45) 100%),
+                radial-gradient(52px 34px at 50% 50%, var(--cloud-white) 0%, rgba(255,255,255,0.9) 40%, rgba(255,255,255,0.45) 100%),
+                radial-gradient(30px 20px at 80% 40%, var(--cloud-white) 0%, rgba(255,255,255,0.85) 40%, rgba(255,255,255,0.55) 100%);
+            border-radius:60px;
+            filter: blur(var(--cloud-blur)) saturate(110%);
+            opacity:0.92;
+            mix-blend-mode: screen;
+            will-change: transform;
+            z-index:1;
+            pointer-events:none;
+        }
 
-  <style>
-    body {
-      background-color: white;
-      color: white;
-      font-family: 'Ubuntu', sans-serif;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      background-image: url("banner.jpg");
-      background-position: center;
-      background-repeat: no-repeat;
-      background-size: cover;
-    }
+        .cloud--1{
+            top:6%; left:-30%;
+            width:300px; height:88px;
+            animation: cloud-move-ltr 60s linear infinite;
+            opacity:0.95; z-index:2;
+            animation-delay: -8s;
+        }
+        .cloud--2.centered{
+            top:18%; left:50%;
+            width:240px; height:76px;
+            transform: translateX(-50%);
+            animation: cloud-move-ltr-centered 64s linear infinite;
+            opacity:0.92; z-index:3;
+            animation-delay: -6s;
+        }
+        .cloud--3{
+            top:30%; left:-62%;
+            width:360px; height:106px;
+            animation: cloud-move-ltr 76s linear infinite;
+            opacity:0.90; z-index:2;
+            animation-delay: -20s;
+        }
+        .cloud--4{
+            top:44%; right:-40%;
+            width:260px; height:78px;
+            animation: cloud-move-rtl 56s linear infinite;
+            opacity:0.89; z-index:3;
+            animation-delay: -12s;
+        }
+        .cloud--5.centered{
+            top:58%; left:50%;
+            width:200px; height:64px;
+            transform: translateX(-50%);
+            animation: cloud-move-rtl-centered 68s linear infinite;
+            opacity:0.87; z-index:2;
+            animation-delay: -4s;
+        }
+        .cloud--6{
+            top:72%; right:-60%;
+            width:320px; height:96px;
+            animation: cloud-move-rtl 80s linear infinite;
+            opacity:0.86; z-index:1;
+            animation-delay: -24s;
+        }
+        .cloud--7{
+            top:84%; left:-50%;
+            width:180px; height:56px;
+            animation: cloud-move-ltr 72s linear infinite;
+            opacity:0.84; z-index:1;
+            animation-delay: -16s;
+        }
 
-    header {
-      background-color: #17345f;
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+        @keyframes cloud-move-ltr {
+            0%   { transform: translate3d(-40vw, 0, 0) translateY(0px); }
+            25%  { transform: translate3d(-10vw, 0, 0) translateY(6px); }
+            50%  { transform: translate3d(40vw, 0, 0) translateY(0px); }
+            75%  { transform: translate3d(80vw, 0, 0) translateY(-6px); }
+            100% { transform: translate3d(140vw, 0, 0) translateY(0px); }
+        }
 
-    footer {
-      background-color: #17345f;
-      color: white;
-      font-family: 'Ubuntu', sans-serif;
-      border-top: 1px solid #204a8a;
-      padding: 20px;
-      margin-top: auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+        @keyframes cloud-move-rtl {
+            0%   { transform: translate3d(40vw, 0, 0) translateY(0px); }
+            25%  { transform: translate3d(10vw, 0, 0) translateY(-6px); }
+            50%  { transform: translate3d(-40vw, 0, 0) translateY(0px); }
+            75%  { transform: translate3d(-80vw, 0, 0) translateY(6px); }
+            100% { transform: translate3d(-140vw, 0, 0) translateY(0px); }
+        }
 
-    .logo {
-      width: 50px;
-      height: auto;
-      border: 5px solid #17345f;
-      border-radius: 30%;
-      margin-right: 10px;
-    }
+        @keyframes cloud-move-ltr-centered {
+            0%   { transform: translate3d(-50%, 0, 0) translateY(0px); }
+            20%  { transform: translate3d(-10vw, 0, 0) translateY(6px); }
+            50%  { transform: translate3d(40vw, 0, 0) translateY(0px); }
+            80%  { transform: translate3d(80vw, 0, 0) translateY(-6px); }
+            100% { transform: translate3d(140vw, 0, 0) translateY(0px); }
+        }
 
-    .head-link {
-      color:white;
-    }
+        @keyframes cloud-move-rtl-centered {
+            0%   { transform: translate3d(-50%, 0, 0) translateY(0px); }
+            20%  { transform: translate3d(10vw, 0, 0) translateY(-6px); }
+            50%  { transform: translate3d(-40vw, 0, 0) translateY(0px); }
+            80%  { transform: translate3d(-80vw, 0, 0) translateY(6px); }
+            100% { transform: translate3d(-140vw, 0, 0) translateY(0px); }
+        }
+        
+        .center-stage{
+            position:absolute;
+            left:50%;
+            top:48%;
+            transform: translate(-50%,-50%);
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            gap:18px;
+            z-index:10;
+            pointer-events:none;
+        }
 
-    .container {
-      display: flex;
-      align-items: center;
-    }
+        .plane{
+            width: var(--plane-width);
+            height:auto;
+            transform-origin:center;
+            animation: bob var(--bob-duration) ease-in-out infinite;
+            filter: drop-shadow(0 12px 22px rgba(6,30,60,0.14));
+        }
 
-    a.telegram-button{
-     background: linear-gradient(to right,#196BCA ,#6433E0);
-     background-color: #196BCA;
-     color: #fff;
-     font-family: Arial;
-     font-size: 25px;
-     font-weight: 800;
-     font-style: normal;
-     text-decoration: none;
-     padding: 14px 15px;
-     border: 0px solid #000;
-     border-radius: 10px;
-     display: inline-flex;
-     justify-content: center;
-     align-items: center;
-     text-shadow: 2px 2px 0px #000;
-     top: 54%;
-     position: absolute;
-     left: 41%;
-    }
-    a.telegram-button span{
-     margin-right: 15px;
-     display: block;
-     width: 29px;
-     height: 29px;
-     background-image: url("https://www.svgrepo.com/download/452115/telegram.svg");
-     background-repeat: no-repeat;
-     background-size: contain;
-     transform: rotate(0deg);
-    }
-    a.telegram-button:hover{
-     background: linear-gradient(to right,#5482d0 ,#7d5ee3);
-     background-color: #5482d0;
-    }
-    a.telegram-button:active{
-     transform: scale(0.95);
-    }
+        @keyframes bob {
+            0%   { transform: translateY(-10px) rotate(-0.8deg); }
+            25%  { transform: translateY(0px)   rotate(-0.2deg); }
+            50%  { transform: translateY(12px)  rotate(0.8deg); }
+            75%  { transform: translateY(4px)   rotate(0.2deg); }
+            100% { transform: translateY(-10px) rotate(-0.8deg); }
+        }
 
-    a.discord-button{
-     background: linear-gradient(to right,#196BCA ,#6433E0);
-     background-color: #196BCA;
-     color: #fff;
-     font-family: Arial;
-     font-size: 25px;
-     font-weight: 800;
-     font-style: normal;
-     text-decoration: none;
-     padding: 14px 15px;
-     border: 0px solid #000;
-     border-radius: 10px;
-     display: inline-flex;
-     justify-content: center;
-     align-items: center;
-     text-shadow: 2px 2px 0px #000;
-     top: 64%;
-     position: absolute;
-     left: 41%;
-    }
-    a.discord-button span{
-     margin-right: 15px;
-     display: block;
-     width: 29px;
-     height: 29px;
-     background-image: url("https://www.svgrepo.com/download/331368/discord-v2.svg");
-     background-repeat: no-repeat;
-     background-size: contain;
-     transform: rotate(0deg);
-    }
-    a.discord-button:hover{
-     background: linear-gradient(to right,#5482d0 ,#7d5ee3);
-     background-color: #5482d0;
-    }
-    a.discord-button:active{
-     transform: scale(0.95);
-    }
-    
-    .center_text{
-      left: 0;
-      line-height: 200px;
-      margin-top: -100px;
-      position: absolute;
-      text-align: center;
-      top: 50%;
-      width: 100%;
-    }
+        .loading{
+            display:flex;
+            align-items:center;
+            gap:10px;
+            font-weight:800;
+            color: rgba(255,255,255,0.98);
+            text-shadow: 0 3px 12px rgba(6,30,60,0.32);
+            pointer-events:none;
+            user-select:none;
+            transform: translateY(2px);
+        }
 
-    
+        .loading-word{
+            font-size: clamp(28px, 6.5vw, 56px);
+            line-height:1;
+        }
 
-  </style>
+        .loading-dots{ display:inline-flex; align-items:center; height:1em; margin-left:6px; }
+        .dot{
+            display:inline-block;
+            font-size: clamp(28px, 6.5vw, 56px);
+            line-height:1;
+            margin: 0 2px;
+            color: rgba(255,255,255,0.98);
+            opacity:0;
+        }
+
+        @keyframes dot1Anim {
+            0%       { opacity: 1; }
+            33.333%  { opacity: 1; }
+            100%     { opacity: 1; }
+        }
+        @keyframes dot2Anim {
+            0%       { opacity: 0; }
+            33.333%  { opacity: 1; }
+            66.666%  { opacity: 1; }
+            100%     { opacity: 0; }
+        }
+        @keyframes dot3Anim {
+            0%       { opacity: 0; }
+            66.666%  { opacity: 1; }
+            100%     { opacity: 0; }
+        }
+
+        .dot1 { animation: dot1Anim var(--dots-duration) linear infinite; }
+        .dot2 { animation: dot2Anim var(--dots-duration) linear infinite; }
+        .dot3 { animation: dot3Anim var(--dots-duration) linear infinite; }
+
+        .footer{
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 8px;
+            text-align:center;
+            font-size:12px;
+            color: rgba(255,255,255,0.96);
+            padding: 8px 12px;
+            pointer-events:none;
+            text-shadow: 0 1px 0 rgba(0,0,0,0.12);
+            z-index:12;
+        }
+
+        @media (max-width:900px){
+            :root{
+                --plane-width: clamp(160px, 36vw, 360px);
+                --bob-duration: 3.6s;
+                --dots-duration: 1.4s;
+            }
+            .loading-word { font-size: clamp(24px, 7.5vw, 44px); }
+            .dot { font-size: clamp(24px, 7.5vw, 44px); }
+        }
+        @media (max-width:600px){
+            :root{
+                --plane-width: clamp(120px, 46vw, 240px);
+                --bob-duration: 3.2s;
+                --dots-duration: 1.2s;
+            }
+            .center-stage{ gap:12px }
+            .loading-word { font-size: clamp(20px, 10vw, 34px); }
+            .dot { font-size: clamp(20px, 10vw, 34px); }
+        }
+
+        /* Hide iframes initially */
+        .tab-content iframe {
+            display: none;
+        }
+
+        /* Show the active iframe */
+        .tab-content.active iframe {
+            display: block;
+        }
+        
+        /* Styles for iframes to take up available space */
+        .iframe-container {
+            width: 100%;
+            height: 80vh; /* Occupy most of the viewport height */
+            border-radius: 12px;
+            overflow: hidden;
+            background-color: #fff; /* Background for the iframe */
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
 </head>
-<body>
-  <!-- Encabezado -->
-  <header>
-    <img src="firstofficer.png" alt="First Officer Bot Logo" class="logo">
-    <a class="head-link" href="https://takeoff.piscinadeentropia.es">
-      <h1>First Officer Bot</h1>
-    </a>
-  </header>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col items-center p-4 sm:p-8">
 
-  <!-- Contenido principal -->
-  <main>
-    <center>
-      <h1 class="center_text">First Officer Bot. Ready for takeoff!</h1>
-      <br>
-      <a class="telegram-button" href="https://t.me/first_officer_bot"><span></span>Get on Telegram</a> 
-      <br> 
-      <!--- <a class="discord-button" href="https://discord.com/oauth2/authorize?client_id=1232346605731057685"><span></span>Get on Discord</a>--->
-    </center>
-  </main>
+    <!-- Loading screen with airplane, clouds, and text animation -->
+    <div class="loading-screen" id="loading-screen" role="status" aria-live="polite">
+        <div class="sky" aria-hidden="true"></div>
 
-  <!-- Footer -->
-  <footer>
-    <p>© 2024 Isaac Hernan. All rights reserved.</p>
-    <a style="align-items: center; color:white;" href="./terms.html"><p>Terms of Service</p></a>
-    <a style="align-items: right; color:white;" href="./privacy_policy.html"><p>Privacy Policy</p></a>
-  </footer>
+        <!-- Nubes dispersas por la pantalla -->
+        <div class="cloud cloud--1" aria-hidden="true"></div>
+        <div class="cloud cloud--2 centered" aria-hidden="true"></div>
+        <div class="cloud cloud--3" aria-hidden="true"></div>
+        <div class="cloud cloud--4" aria-hidden="true"></div>
+        <div class="cloud cloud--5 centered" aria-hidden="true"></div>
+        <div class="cloud cloud--6" aria-hidden="true"></div>
+        <div class="cloud cloud--7" aria-hidden="true"></div>
+
+        <!-- Centro: avión y texto de carga -->
+        <div class="center-stage" aria-hidden="false">
+            <img
+                id="plane"
+                class="plane"
+                src="https://images.vexels.com/media/users/3/145795/isolated/preview/05cd33059a006bf49006097af4ccba98-plane-in-flight-by-vexels.png"
+                alt="Avión en vuelo"
+                onerror="this.style.display='none'; document.getElementById('plane-fallback').style.display='block';"
+            />
+
+            <!-- Fallback SVG si la imagen remota no carga -->
+            <svg id="plane-fallback" class="plane fallback" viewBox="0 0 512 512" aria-hidden="true" role="img" style="display:none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="g1" x1="0" x2="1">
+                        <stop offset="0" stop-color="#ffffff"/>
+                        <stop offset="1" stop-color="#e6eef6"/>
+                    </linearGradient>
+                    <linearGradient id="g2" x1="0" x2="1">
+                        <stop offset="0" stop-color="#0f4ea8"/>
+                        <stop offset="1" stop-color="#1b6cd5"/>
+                    </linearGradient>
+                </defs>
+                <g transform="translate(0,0)">
+                    <path d="M48 256c0 0 96-24 224-24s224 24 224 24-96 24-224 24S48 256 48 256z"
+                          fill="url(#g1)" stroke="#d7e7f6" stroke-width="2" opacity="0.98"/>
+                    <path d="M88 208c88-36 336-36 392 0v14c-56-26-304-34-392 0v-14z" fill="#f8fbff" opacity="0.95"/>
+                    <g fill="#cfe8ff" opacity="0.9" transform="translate(140,228)">
+                        <rect x="0" y="0" width="12" height="8" rx="2"/><rect x="20" y="0" width="12" height="8" rx="2"/>
+                        <rect x="40" y="0" width="12" height="8" rx="2"/><rect x="60" y="0" width="12" height="8" rx="2"/>
+                        <rect x="80" y="0" width="12" height="8" rx="2"/><rect x="100" y="0" width="12" height="8" rx="2"/>
+                        <rect x="120" y="0" width="12" height="8" rx="2"/><rect x="140" y="0" width="12" height="8" rx="2"/>
+                        <rect x="160" y="0" width="12" height="8" rx="2"/><rect x="180" y="0" width="12" height="8" rx="2"/>
+                    </g>
+                    <path d="M400 152 L456 112 L472 120 L420 168 Z" fill="url(#g2)" stroke="#0b3f88" stroke-width="1.2"/>
+                    <path d="M408 188 L480 156 L492 166 L428 206 Z" fill="#2a63b8" opacity="0.95"/>
+                    <path d="M180 300 L360 220 L380 232 L200 312 Z" fill="#f3f8ff" stroke="#d0e4fb" stroke-width="1"/>
+                    <path d="M200 292 L360 236 L392 244 L220 312 Z" fill="#e9f3ff" opacity="0.7"/>
+                    <ellipse cx="300" cy="280" rx="26" ry="18" fill="#e6eef6"/><ellipse cx="300" cy="280" rx="18" ry="12" fill="#d6e8fb"/>
+                    <path d="M48 256c22-8 44-12 68-14 0 0 0 0 0 0 0 0 6 22-10 30-20 10-58 0-58 0z" fill="#f8fbff" opacity="0.95"/>
+                </g>
+            </svg>
+
+            <div class="loading" aria-live="polite" aria-atomic="true">
+                <span class="loading-word">Loading</span>
+                <span class="loading-dots" aria-hidden="true">
+                    <span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span>
+                </span>
+            </div>
+        </div>
+
+        <div class="footer">© Isaac Hernan 2025 | All right reserved</div>
+    </div>
+
+    <!-- Main Application Container -->
+    <div id="main-content" class="w-full max-w-4xl bg-gray-800 rounded-2xl shadow-xl overflow-hidden hidden">
+        
+        <!-- Header and Navigation -->
+        <header class="bg-gray-800 p-6 flex flex-col sm:flex-row items-center justify-between border-b border-gray-700">
+            <div class="flex items-center space-x-4 mb-4 sm:mb-0">
+                <div class="text-4xl text-blue-400">✈️</div>
+                <h1 class="text-3xl font-bold tracking-tight">First Officer Bot</h1>
+            </div>
+            <nav class="flex space-x-2 sm:space-x-4">
+                <button onclick="showTab('home')" class="tab-button bg-gray-700 hover:bg-gray-600 text-gray-100 py-2 px-4 rounded-full transition-colors duration-200">Home</button>
+                <button onclick="showTab('features')" class="tab-button bg-gray-700 hover:bg-gray-600 text-gray-100 py-2 px-4 rounded-full transition-colors duration-200">Features</button>
+                <button onclick="showTab('terms')" class="tab-button bg-gray-700 hover:bg-gray-600 text-gray-100 py-2 px-4 rounded-full transition-colors duration-200">Terms</button>
+                <button onclick="showTab('privacy')" class="tab-button bg-gray-700 hover:bg-gray-600 text-gray-100 py-2 px-4 rounded-full transition-colors duration-200">Privacy Policy</button>
+            </nav>
+        </header>
+
+        <!-- Tab Content -->
+        <main class="p-6">
+            <!-- Home tab content -->
+            <div id="home" class="tab-content active">
+                <!-- Banner image for the home section -->
+                <img src="uploaded:banner.jpg-b66d23e2-3ce8-485e-a79f-23f3d75761bb" alt="First Officer Bot Telegram Banner" class="w-full h-auto rounded-xl mb-6 shadow-lg object-cover">
+                <h2 class="text-2xl sm:text-3xl font-bold mb-4 text-center">Welcome to First Officer Bot</h2>
+                <p class="text-lg text-gray-400 mb-6 text-center">
+                    Your Telegram bot companion for aviation, designed to help you with information, calculations, and more.
+                </p>
+                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 justify-center">
+                    <a href="https://t.me/first_officer_bot" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-full transition-colors duration-200 text-center shadow-lg">
+                        <i class="fab fa-telegram-plane mr-2"></i>Go to Telegram Bot
+                    </a>
+                    <a href="https://t.me/+N_dDAJ-w7jhkMmRk" target="_blank" class="bg-gray-700 hover:bg-gray-600 text-gray-100 font-semibold py-3 px-6 rounded-full transition-colors duration-200 text-center">
+                        <i class="fab fa-telegram-plane mr-2"></i>Join the Telegram Group
+                    </a>
+                </div>
+            </div>
+
+            <!-- Features tab content -->
+            <div id="features" class="tab-content hidden">
+                <h2 class="text-2xl font-bold mb-4">Features</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- General Commands -->
+                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
+                        <h3 class="text-lg font-semibold mb-3">⭐️ General Commands</h3>
+                        <ul class="text-gray-300 space-y-2">
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/start</span> - Start using the bot</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/commands</span> - Full list of commands</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/credits</span> - Bot credits</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/legal</span> - Terms of Service</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/privacy</span> - Privacy Policy</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/clear</span> - Remove buttons</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/help</span> - Get help using the bot</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/support</span> - Get support</li>
+                        </ul>
+                    </div>
+                    <!-- Time -->
+                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
+                        <h3 class="text-lg font-semibold mb-3">⏰ Time</h3>
+                        <ul class="text-gray-300 space-y-2">
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/zulu</span> - Get Zulu (UTC) time</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/time <ICAO CODE></span> - Get local time at airport</li>
+                        </ul>
+                    </div>
+                    <!-- Weather -->
+                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
+                        <h3 class="text-lg font-semibold mb-3">🌧️ Weather</h3>
+                        <ul class="text-gray-300 space-y-2">
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/vatsim_metar <ICAO CODE></span> - METAR from Vatsim</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/ivao_metar <ICAO CODE></span> - METAR from IVAO</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/metar <ICAO CODE></span> - METAR from NOAA</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/taf <ICAO CODE></span> - TAF from NOAA</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/graphic_metar <ICAO CODE></span> - Shows a Graphic METAR and TAF</li>
+                        </ul>
+                    </div>
+                    <!-- Charts -->
+                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
+                        <h3 class="text-lg font-semibold mb-3">🗺️ Charts</h3>
+                        <ul class="text-gray-300 space-y-2">
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/charts_general <AIRPORT CODE></span> - General airport chart</li>
+                        </ul>
+                    </div>
+                    <!-- ICAO & Airports -->
+                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
+                        <h3 class="text-lg font-semibold mb-3">✈️ ICAO & Airports</h3>
+                        <ul class="text-gray-300 space-y-2">
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/icao_search <TEXT></span> - Find airport code</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/icao_info <ICAO CODE></span> - Info about airport</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/icao_airline_code <ICAO CODE></span> - Find airline data by ICAO code</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/icao_airline_name <ICAO CODE></span> - Find airline data by name</li>
+                        </ul>
+                    </div>
+                    <!-- IVAO -->
+                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
+                        <h3 class="text-lg font-semibold mb-3">☁️ IVAO</h3>
+                        <ul class="text-gray-300 space-y-2">
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/ivao_status</span> - IVAO server status</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/ivao_atis <ICAO CODE></span> - ATIS from IVAO</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/webeye</span> - Launch IVAO WebEye in this Chat</li>
+                        </ul>
+                    </div>
+                    <!-- Vatsim -->
+                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
+                        <h3 class="text-lg font-semibold mb-3">☁️ Vatsim</h3>
+                        <ul class="text-gray-300 space-y-2">
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/vatsim_status</span> - Vatsim server status</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/vatsim_metar <ICAO CODE></span> - METAR from Vatsim</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/vatsim_flightplan <User ID></span> - Vatsim user flightplan</li>
+                        </ul>
+                    </div>
+                    <!-- Knowledge -->
+                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
+                        <h3 class="text-lg font-semibold mb-3">💡 Knowledge</h3>
+                        <ul class="text-gray-300 space-y-2">
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/concept <CONCEPT></span> - Aviation concept/abbreviation info</li>
+                        </ul>
+                    </div>
+                    <!-- Calculation Commands -->
+                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
+                        <h3 class="text-lg font-semibold mb-3">🧮 Calculation Commands</h3>
+                        <ul class="text-gray-300 space-y-2">
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/distance <PLANEMODEL> <DEPARTURE> <DESTINATION></span> - Distance between airports</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/duration <PLANEMODEL> <DEPARTURE> <DESTINATION></span> - Estimated flight duration</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/fuel <PLANEMODEL> <DEPARTURE> <DESTINATION></span> - Estimated fuel needed</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/speed <PLANEMODEL> <DEPARTURE> <DESTINATION></span> - Cruise speed of the aircraft</li>
+                        </ul>
+                    </div>
+                    <!-- Aircraft Radar -->
+                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
+                        <h3 class="text-lg font-semibold mb-3">📡 Aircraft Radar</h3>
+                        <ul class="text-gray-300 space-y-2">
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/flight_callsign <CALLSIGN></span> - Details of a flight by callsign</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/flights_airport <ICAO or IATA CODE></span> - Flights near an airport ICAO code (25NM)</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/flights_registration <REGISTRATION></span> - Details of a flight by registration</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/nearby_flights <LATITUDE> <LONGITUDE></span> - Flights near coordinates (25NM)</li>
+                        </ul>
+                        <p class="mt-4 text-gray-400">Or send your location via Telegram to see flights near you!!</p>
+                    </div>
+                    <!-- SIGWX Charts -->
+                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
+                        <h3 class="text-lg font-semibold mb-3">🌍 SIGWX Charts</h3>
+                        <ul class="text-gray-300 space-y-2">
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/spain_sigwx</span> - Significant Weather Chart for Spain</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/europe_sigwx</span> - Significant Weather Chart for Europe</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/northatlantic_sigwx</span> - Significant Weather Chart for North Atlantic</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/europe_south_america_sigwx</span> - Europe & South America SIGWX</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/europe_africa_sigwx</span> - Europe & Africa SIGWX</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/europe_asia_sigwx</span> - Europe & Asia SIGWX</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/middle_east_sigwx</span> - Middle East SIGWX</li>
+                        </ul>
+                    </div>
+                    <!-- Winds and forecast charts -->
+                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
+                        <h3 class="text-lg font-semibold mb-3">🌧️ Winds and forecast charts</h3>
+                        <ul class="text-gray-300 space-y-2">
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/wind_spain</span> - Wind Chart for Spain</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/surface_forecast_spain</span> - Surface forecast Chart for Spain</li>
+                        </ul>
+                    </div>
+                    <!-- Calculators -->
+                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
+                        <h3 class="text-lg font-semibold mb-3">🧮 Calculators</h3>
+                        <ul class="text-gray-300 space-y-2">
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/cr3</span> - CR3 Calculator</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/e6b</span> - E6B Calculator</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/cx3</span> - ASA CX3 Calculator</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/calculator</span> - Calculator App</li>
+                        </ul>
+                    </div>
+                    <!-- Checklists -->
+                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
+                        <h3 class="text-lg font-semibold mb-3">📋 Checklists</h3>
+                        <ul class="text-gray-300 space-y-2">
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/checklists</span> - Open checklists app</li>
+                        </ul>
+                    </div>
+                    <!-- NOTAMs -->
+                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
+                        <h3 class="text-lg font-semibold mb-3">🚨 NOTAMs</h3>
+                        <ul class="text-gray-300 space-y-2">
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/notam <ICAO CODE AIRPORT OR FIR></span> - Get NOTAMs for an airport or FIR with ICAO code</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Terms of Service tab content -->
+            <div id="terms" class="tab-content hidden">
+                <h2 class="text-2xl font-bold mb-4">Terms of Service</h2>
+                <div class="iframe-container">
+                    <iframe src="https://takeoff.piscinadeentropia.es/terms_frame" title="Terms of Service"></iframe>
+                </div>
+            </div>
+
+            <!-- Privacy Policy tab content -->
+            <div id="privacy" class="tab-content hidden">
+                <h2 class="text-2xl font-bold mb-4">Privacy Policy</h2>
+                <div class="iframe-container">
+                    <iframe src="https://takeoff.piscinadeentropia.es/privacy_policy_frame" title="Privacy Policy"></iframe>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="p-6 text-center text-sm text-gray-500 border-t border-gray-700 mt-auto">
+            © 2025 Isaac Hernan. All rights reserved.
+        </footer>
+    </div>
+
+    <script>
+        // Hide loading screen on page load
+        window.addEventListener('load', () => {
+            const loadingScreen = document.getElementById('loading-screen');
+            const mainContent = document.getElementById('main-content');
+            
+            // Wait for 4 seconds before fading out the loading screen
+            setTimeout(() => {
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                    mainContent.classList.remove('hidden');
+                    mainContent.classList.add('flex', 'flex-col', 'min-h-screen');
+                }, 500); // Wait for the opacity transition to complete
+            }, 4000); // 4 seconds
+        });
+
+        // Function to switch tabs
+        function showTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            // Show the selected tab
+            document.getElementById(tabId).classList.remove('hidden');
+
+            // Update button appearance
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('bg-blue-600', 'text-white');
+                button.classList.add('bg-gray-700', 'text-gray-100');
+            });
+            const activeTabButton = document.querySelector(`[onclick="showTab('${tabId}')"]`);
+            activeTabButton.classList.remove('bg-gray-700', 'text-gray-100');
+            activeTabButton.classList.add('bg-blue-600', 'text-white');
+        }
+
+        // Show home tab by default on load
+        document.addEventListener('DOMContentLoaded', () => {
+            showTab('home');
+        });
+    </script>
 </body>
 </html>
