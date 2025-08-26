@@ -413,11 +413,9 @@
                 </div>
             </div>
 
-            <!-- Features tab content -->
             <div id="features" class="tab-content hidden">
                 <h2 class="text-2xl font-bold mb-4">Features</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- General Commands -->
                     <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
                         <h3 class="text-lg font-semibold mb-3">⭐️ General Commands</h3>
                         <ul class="text-gray-300 space-y-2">
@@ -431,7 +429,6 @@
                             <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/support</span> - Get support</li>
                         </ul>
                     </div>
-                    <!-- Time -->
                     <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
                         <h3 class="text-lg font-semibold mb-3">⏰ Time</h3>
                         <ul class="text-gray-300 space-y-2">
@@ -439,7 +436,6 @@
                             <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/time &lt;ICAO CODE&gt;</span> - Get local time at airport</li>
                         </ul>
                     </div>
-                    <!-- Weather -->
                     <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
                         <h3 class="text-lg font-semibold mb-3">🌧️ Weather</h3>
                         <ul class="text-gray-300 space-y-2">
@@ -450,14 +446,12 @@
                             <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/graphic_metar &lt;ICAO CODE&gt;</span> - Shows a Graphic METAR and TAF</li>
                         </ul>
                     </div>
-                    <!-- Charts -->
                     <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
                         <h3 class="text-lg font-semibold mb-3">🗺️ Charts</h3>
                         <ul class="text-gray-300 space-y-2">
                             <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/charts_general &lt;AIRPORT CODE&gt;</span> - General airport chart</li>
                         </ul>
                     </div>
-                    <!-- ICAO & Airports -->
                     <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
                         <h3 class="text-lg font-semibold mb-3">✈️ ICAO & Airports</h3>
                         <ul class="text-gray-300 space-y-2">
@@ -467,16 +461,15 @@
                             <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/icao_airline_name &lt;ICAO CODE&gt;</span> - Find airline data by name</li>
                         </ul>
                     </div>
-                    <!-- IVAO -->
                     <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
                         <h3 class="text-lg font-semibold mb-3">☁️ IVAO</h3>
                         <ul class="text-gray-300 space-y-2">
                             <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/ivao_status</span> - IVAO server status</li>
                             <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/ivao_atis &lt;ICAO CODE&gt;</span> - ATIS from IVAO</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/ivao_voice_atis &lt;ICAO CODE&gt;</span> - Voice ATIS from IVAO</li>
                             <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/webeye</span> - Launch IVAO WebEye in this Chat</li>
                         </ul>
                     </div>
-                    <!-- Vatsim -->
                     <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
                         <h3 class="text-lg font-semibold mb-3">☁️ Vatsim</h3>
                         <ul class="text-gray-300 space-y-2">
@@ -485,24 +478,40 @@
                             <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/vatsim_flightplan &lt;User ID&gt;</span> - Vatsim user flightplan</li>
                         </ul>
                     </div>
-                    <!-- Knowledge -->
                     <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
                         <h3 class="text-lg font-semibold mb-3">💡 Knowledge</h3>
                         <ul class="text-gray-300 space-y-2">
                             <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/concept &lt;CONCEPT&gt;</span> - Aviation concept/abbreviation info</li>
                         </ul>
                     </div>
-                    <!-- Calculation Commands -->
                     <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
                         <h3 class="text-lg font-semibold mb-3">🧮 Calculation Commands</h3>
                         <ul class="text-gray-300 space-y-2">
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/distance &lt;PLANEMODEL&gt; &lt;DEPARTURE&gt; &lt;DESTINATION&gt;</span> - Distance between airports</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/duration &lt;PLANEMODEL&gt; &lt;DEPARTURE&gt; &lt;DESTINATION&gt;</span> - Estimated flight duration</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/fuel &lt;PLANEMODEL&gt; &lt;DEPARTURE&gt; &lt;DESTINATION&gt;</span> - Estimated fuel needed</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/speed &lt;PLANEMODEL&gt; &lt;DEPARTURE&gt; &lt;DESTINATION&gt;</span> - Cruise speed of the aircraft</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/haversine &lt;lat1&gt; &lt;lon1&gt; &lt;lat2&gt; &lt;lon2&gt;</span> - Distance between two coordinates</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/airports_haversine &lt;ICAO1&gt; &lt;ICAO2&gt;</span> - Distance between two airports</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/true_airspeed &lt;IAS&gt; &lt;ALT_FT&gt; &lt;TEMP_C&gt;</span> - True Airspeed</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/fuel_consumption &lt;FLOW_LPH&gt; &lt;HOURS&gt;</span> - Fuel consumption</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/density_altitude &lt;PRESS_ALT_FT&gt; &lt;TEMP_C&gt;</span> - Density altitude</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/fuel_range &lt;FUEL_L&gt; &lt;FLOW_LPH&gt; &lt;TAS_KMH&gt;</span> - Maximum range</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/flight_time &lt;FUEL_L&gt; &lt;FLOW_LPH&gt;</span> - Maximum flight time</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/gallons_to_liters &lt;GAL&gt;</span> - Gallons to liters</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/liters_to_gallons &lt;LITERS&gt;</span> - Liters to gallons</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/kg_to_liters &lt;KG&gt; [&lt;DENSITY&gt;]</span> - Kg to liters of fuel</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/fuel_per_distance &lt;FLOW_LPH&gt; &lt;TAS_KMH&gt;</span> - Fuel consumption per km</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/knots_to_kmh &lt;KNOTS&gt;</span> - Knots to kmh</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/kmh_to_knots &lt;KMH&gt;</span> - Kmh to knots</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/knots_to_mph &lt;KNOTS&gt;</span> - Knots to mph</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/mph_to_knots &lt;MPH&gt;</span> - Mph to knots</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/ground_speed &lt;TAS&gt; &lt;WIND_SPEED&gt; &lt;WIND_DIR&gt; &lt;TRACK&gt;</span> - Ground speed</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/heading &lt;TAS&gt; &lt;WIND_SPEED&gt; &lt;WIND_DIR&gt; &lt;TRACK&gt;</span> - Heading</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/estimated_enroute_time &lt;DIST_KM&gt; &lt;GS_KMH&gt;</span> - Estimated enroute time</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/pnr &lt;FUEL_L&gt; &lt;FLOW_OUT_LPH&gt; &lt;FLOW_BACK_LPH&gt; &lt;GS_OUT_KMH&gt; &lt;GS_BACK_KMH&gt;</span> - Point of No Return (PNR)</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/eqpt &lt;DIST_KM&gt; &lt;GS_OUT_KMH&gt; &lt;GS_BACK_KMH&gt;</span> - Equal Time Point (ETP)</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/takeoff_distance &lt;WEIGHT_KG&gt; &lt;DENSITY_ALT_FT&gt; [&lt;FLAP&gt;] [&lt;SLOPE&gt;]</span> - Takeoff distance</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/landing_distance &lt;WEIGHT_KG&gt; &lt;DENSITY_ALT_FT&gt; [&lt;FLAP&gt;] [&lt;SLOPE&gt;]</span> - Landing distance</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/weight_and_balance &lt;EMPTY_W_KG&gt; &lt;EMPTY_ARM_M&gt; &lt;FUEL_W_KG&gt; &lt;FUEL_ARM_M&gt; &lt;PAYLOAD_W_KG&gt; &lt;PAYLOAD_ARM_M&gt;</span> - Weight and balance</li>
                         </ul>
                     </div>
-                    <!-- Aircraft Radar -->
                     <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
                         <h3 class="text-lg font-semibold mb-3">📡 Aircraft Radar</h3>
                         <ul class="text-gray-300 space-y-2">
@@ -511,9 +520,8 @@
                             <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/flights_registration &lt;REGISTRATION&gt;</span> - Details of a flight by registration</li>
                             <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/nearby_flights &lt;LATITUDE&gt; &lt;LONGITUDE&gt;</span> - Flights near coordinates (25NM)</li>
                         </ul>
-                        <p class="mt-4 text-gray-400">Or send your location via Telegram to see flights near you!!</p>
+                        <p class="mt-4 text-gray-400">Or send your location via Telegram to see flights near you!! (We don't store this data, even thought you can send only your approximated location or a custom one with the map)</p>
                     </div>
-                    <!-- SIGWX Charts -->
                     <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
                         <h3 class="text-lg font-semibold mb-3">🌍 SIGWX Charts</h3>
                         <ul class="text-gray-300 space-y-2">
@@ -526,15 +534,19 @@
                             <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/middle_east_sigwx</span> - Middle East SIGWX</li>
                         </ul>
                     </div>
-                    <!-- Winds and forecast charts -->
                     <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
                         <h3 class="text-lg font-semibold mb-3">🌧️ Winds and forecast charts</h3>
                         <ul class="text-gray-300 space-y-2">
                             <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/wind_spain</span> - Wind Chart for Spain</li>
                             <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/surface_forecast_spain</span> - Surface forecast Chart for Spain</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/wind_europe</span> - Wind Chart for Europe</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/wind_northatlantic</span> - Wind Chart for North Atlantic</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/wind_europe_south_america</span> - Wind Chart for Europe & South America</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/wind_europe_africa</span> - Wind Chart for Europe & Africa</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/wind_europe_asia</span> - Wind Chart for Europe & Asia</li>
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/wind_middle_east</span> - Wind Chart for Middle East</li>
                         </ul>
                     </div>
-                    <!-- Calculators -->
                     <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
                         <h3 class="text-lg font-semibold mb-3">🧮 Calculators</h3>
                         <ul class="text-gray-300 space-y-2">
@@ -544,18 +556,22 @@
                             <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/calculator</span> - Calculator App</li>
                         </ul>
                     </div>
-                    <!-- Checklists -->
                     <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
                         <h3 class="text-lg font-semibold mb-3">📋 Checklists</h3>
                         <ul class="text-gray-300 space-y-2">
                             <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/checklists</span> - Open checklists app</li>
                         </ul>
                     </div>
-                    <!-- NOTAMs -->
                     <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
                         <h3 class="text-lg font-semibold mb-3">🚨 NOTAMs</h3>
                         <ul class="text-gray-300 space-y-2">
                             <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/notam &lt;ICAO CODE AIRPORT OR FIR&gt;</span> - Get NOTAMs for an airport or FIR with ICAO code</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
+                        <h3 class="text-lg font-semibold mb-3">📍 Flight Plans</h3>
+                        <ul class="text-gray-300 space-y-2">
+                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/flight_plan &lt;ORIGIN ICAO&gt; &lt;DESTINATION ICAO&gt;</span> - Get a flight plan between two airports</li>
                         </ul>
                     </div>
                 </div>
