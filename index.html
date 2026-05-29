@@ -47,7 +47,7 @@
         /* Nav active states */
         .tab-button.active {
             background-color: var(--primary-blue);
-            color: #white;
+            color: white;
             box-shadow: 0 0 15px rgba(0, 136, 204, 0.4);
         }
 
@@ -59,12 +59,22 @@
             display: block;
         }
         
+        /* Iframe Sizing Fix */
         .iframe-container {
             width: 100%;
             height: 75vh;
+            min-height: 600px;
             border-radius: 12px;
             overflow: hidden;
             border: 1px solid var(--border-glow);
+            background-color: #ffffff; /* Fondo blanco en caso de que los iframes sean transparentes */
+        }
+        
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
         }
     </style>
 </head>
@@ -93,11 +103,8 @@
         <main class="p-6 flex-grow">
             
             <div id="home" class="tab-content active text-center max-w-3xl mx-auto py-8">
-                <div class="relative mb-8 rounded-xl overflow-hidden shadow-2xl border border-blue-500/20">
-                    <img src="./banner.png" alt="First Officer Bot Telegram Banner" class="w-full h-auto object-cover min-h-[200px] bg-slate-950">
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent flex items-end p-6">
-                        <p class="text-left text-sm md:text-base text-blue-200 font-medium">Your essential aviation tools, always ready.</p>
-                    </div>
+                <div class="mb-8 rounded-xl overflow-hidden shadow-2xl border border-blue-500/20">
+                    <img src="./banner.png" alt="First Officer Bot Telegram Banner" class="w-full h-auto object-cover bg-slate-950 block">
                 </div>
                 
                 <h2 class="text-3xl font-bold mb-4">Welcome to First Officer Bot 🤖</h2>
