@@ -4,648 +4,367 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>First Officer Bot - Ready for Takeoff!</title>
-    <!-- Include Tailwind CSS for a modern and responsive design -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Include Font Awesome icons for features -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        /* Custom styles for the site */
+        /* Paleta de colores inspirada en el Banner de First Officer Bot */
         :root {
-            --primary-color: #3b82f6; /* Tailwind blue-500 */
-            --bg-color: #1f2937; /* Tailwind gray-800 */
-            --card-color: #374151; /* Tailwind gray-700 */
-            --text-color: #f3f4f6; /* Tailwind gray-100 */
-
-            /* New loading screen CSS variables */
-            --sky-top: #7ec8ff;
-            --sky-bottom: #4aa3ff;
-            --cloud-white: rgba(255,255,255,0.95);
-            --cloud-blur: 6px;
-            --plane-width: clamp(200px, 30vw, 420px);
-            --bob-duration: 4s;
-            --dots-duration: 1.5s;
+            --bg-deep-blue: #07162c;     /* Azul noche profundo del fondo */
+            --bg-card: rgba(13, 31, 56, 0.7); /* Azul contenedor con transparencia */
+            --primary-blue: #0088cc;    /* Azul Telegram / Botones */
+            --neon-blue: #1fa2ff;       /* Azul brillante de acentos */
+            --text-light: #f3f4f6;
+            --border-glow: rgba(31, 162, 255, 0.15);
         }
 
-        /* Overall body styling for the main content */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background-color: var(--bg-deep-blue);
+            color: var(--text-light);
+            /* Simulación de fondo sutil con patrón de radar/mapa aeronáutico */
+            background-image: 
+                radial-gradient(circle at 80% 20%, rgba(31, 162, 255, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 10% 70%, rgba(0, 136, 204, 0.05) 0%, transparent 50%);
+            background-attachment: fixed;
         }
 
-        /* Main app container */
-        .app-container {
+        .custom-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            backdrop-filter: blur(8px);
+        }
+
+        .command-badge {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: rgba(7, 22, 44, 0.8);
+            border: 1px solid rgba(31, 162, 255, 0.2);
+            color: var(--neon-blue);
+        }
+
+        /* Nav active states */
+        .tab-button.active {
+            background-color: var(--primary-blue);
+            color: #white;
+            box-shadow: 0 0 15px rgba(0, 136, 204, 0.4);
+        }
+
+        /* Tab Content Control */
+        .tab-content {
             display: none;
-            width: 100%;
-            height: 100vh;
-            overflow: auto; /* Allow scrolling for main content */
         }
-        
-        /* New loading screen styles */
-        .loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            transition: opacity 0.5s ease-out;
-            background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 100%);
-            overflow: hidden;
-        }
-
-        /* User-provided CSS for the clouds, plane, and text */
-        .sky{
-            position:absolute;
-            inset:0;
-            background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0) 40%);
-            pointer-events:none;
-            z-index:0;
-        }
-
-        .cloud{
-            position:absolute;
-            background:
-                radial-gradient(36px 24px at 20% 40%, var(--cloud-white) 0%, rgba(255,255,255,0.85) 40%, rgba(255,255,255,0.45) 100%),
-                radial-gradient(52px 34px at 50% 50%, var(--cloud-white) 0%, rgba(255,255,255,0.9) 40%, rgba(255,255,255,0.45) 100%),
-                radial-gradient(30px 20px at 80% 40%, var(--cloud-white) 0%, rgba(255,255,255,0.85) 40%, rgba(255,255,255,0.55) 100%);
-            border-radius:60px;
-            filter: blur(var(--cloud-blur)) saturate(110%);
-            opacity:0.92;
-            mix-blend-mode: screen;
-            will-change: transform;
-            z-index:1;
-            pointer-events:none;
-        }
-
-        .cloud--1{
-            top:6%; left:-30%;
-            width:300px; height:88px;
-            animation: cloud-move-ltr 60s linear infinite;
-            opacity:0.95; z-index:2;
-            animation-delay: -8s;
-        }
-        .cloud--2.centered{
-            top:18%; left:50%;
-            width:240px; height:76px;
-            transform: translateX(-50%);
-            animation: cloud-move-ltr-centered 64s linear infinite;
-            opacity:0.92; z-index:3;
-            animation-delay: -6s;
-        }
-        .cloud--3{
-            top:30%; left:-62%;
-            width:360px; height:106px;
-            animation: cloud-move-ltr 76s linear infinite;
-            opacity:0.90; z-index:2;
-            animation-delay: -20s;
-        }
-        .cloud--4{
-            top:44%; right:-40%;
-            width:260px; height:78px;
-            animation: cloud-move-rtl 56s linear infinite;
-            opacity:0.89; z-index:3;
-            animation-delay: -12s;
-        }
-        .cloud--5.centered{
-            top:58%; left:50%;
-            width:200px; height:64px;
-            transform: translateX(-50%);
-            animation: cloud-move-rtl-centered 68s linear infinite;
-            opacity:0.87; z-index:2;
-            animation-delay: -4s;
-        }
-        .cloud--6{
-            top:72%; right:-60%;
-            width:320px; height:96px;
-            animation: cloud-move-rtl 80s linear infinite;
-            opacity:0.86; z-index:1;
-            animation-delay: -24s;
-        }
-        .cloud--7{
-            top:84%; left:-50%;
-            width:180px; height:56px;
-            animation: cloud-move-ltr 72s linear infinite;
-            opacity:0.84; z-index:1;
-            animation-delay: -16s;
-        }
-
-        @keyframes cloud-move-ltr {
-            0%   { transform: translate3d(-40vw, 0, 0) translateY(0px); }
-            25%  { transform: translate3d(-10vw, 0, 0) translateY(6px); }
-            50%  { transform: translate3d(40vw, 0, 0) translateY(0px); }
-            75%  { transform: translate3d(80vw, 0, 0) translateY(-6px); }
-            100% { transform: translate3d(140vw, 0, 0) translateY(0px); }
-        }
-
-        @keyframes cloud-move-rtl {
-            0%   { transform: translate3d(40vw, 0, 0) translateY(0px); }
-            25%  { transform: translate3d(10vw, 0, 0) translateY(-6px); }
-            50%  { transform: translate3d(-40vw, 0, 0) translateY(0px); }
-            75%  { transform: translate3d(-80vw, 0, 0) translateY(6px); }
-            100% { transform: translate3d(-140vw, 0, 0) translateY(0px); }
-        }
-
-        @keyframes cloud-move-ltr-centered {
-            0%   { transform: translate3d(-50%, 0, 0) translateY(0px); }
-            20%  { transform: translate3d(-10vw, 0, 0) translateY(6px); }
-            50%  { transform: translate3d(40vw, 0, 0) translateY(0px); }
-            80%  { transform: translate3d(80vw, 0, 0) translateY(-6px); }
-            100% { transform: translate3d(140vw, 0, 0) translateY(0px); }
-        }
-
-        @keyframes cloud-move-rtl-centered {
-            0%   { transform: translate3d(-50%, 0, 0) translateY(0px); }
-            20%  { transform: translate3d(10vw, 0, 0) translateY(-6px); }
-            50%  { transform: translate3d(-40vw, 0, 0) translateY(0px); }
-            80%  { transform: translate3d(-80vw, 0, 0) translateY(6px); }
-            100% { transform: translate3d(-140vw, 0, 0) translateY(0px); }
-        }
-        
-        .center-stage{
-            position:absolute;
-            left:50%;
-            top:48%;
-            transform: translate(-50%,-50%);
-            display:flex;
-            flex-direction:column;
-            align-items:center;
-            gap:18px;
-            z-index:10;
-            pointer-events:none;
-        }
-
-        .plane{
-            width: var(--plane-width);
-            height:auto;
-            transform-origin:center;
-            animation: bob var(--bob-duration) ease-in-out infinite;
-            filter: drop-shadow(0 12px 22px rgba(6,30,60,0.14));
-        }
-
-        @keyframes bob {
-            0%   { transform: translateY(-10px) rotate(-0.8deg); }
-            25%  { transform: translateY(0px)   rotate(-0.2deg); }
-            50%  { transform: translateY(12px)  rotate(0.8deg); }
-            75%  { transform: translateY(4px)   rotate(0.2deg); }
-            100% { transform: translateY(-10px) rotate(-0.8deg); }
-        }
-
-        .loading{
-            display:flex;
-            align-items:center;
-            gap:10px;
-            font-weight:800;
-            color: rgba(255,255,255,0.98);
-            text-shadow: 0 3px 12px rgba(6,30,60,0.32);
-            pointer-events:none;
-            user-select:none;
-            transform: translateY(2px);
-        }
-
-        .loading-word{
-            font-size: clamp(28px, 6.5vw, 56px);
-            line-height:1;
-        }
-
-        .loading-dots{ display:inline-flex; align-items:center; height:1em; margin-left:6px; }
-        .dot{
-            display:inline-block;
-            font-size: clamp(28px, 6.5vw, 56px);
-            line-height:1;
-            margin: 0 2px;
-            color: rgba(255,255,255,0.98);
-            opacity:0;
-        }
-
-        @keyframes dot1Anim {
-            0%       { opacity: 1; }
-            33.333%  { opacity: 1; }
-            100%     { opacity: 1; }
-        }
-        @keyframes dot2Anim {
-            0%       { opacity: 0; }
-            33.333%  { opacity: 1; }
-            66.666%  { opacity: 1; }
-            100%     { opacity: 0; }
-        }
-        @keyframes dot3Anim {
-            0%       { opacity: 0; }
-            66.666%  { opacity: 1; }
-            100%     { opacity: 0; }
-        }
-
-        .dot1 { animation: dot1Anim var(--dots-duration) linear infinite; }
-        .dot2 { animation: dot2Anim var(--dots-duration) linear infinite; }
-        .dot3 { animation: dot3Anim var(--dots-duration) linear infinite; }
-
-        .footer{
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 8px;
-            text-align:center;
-            font-size:12px;
-            color: rgba(255,255,255,0.96);
-            padding: 8px 12px;
-            pointer-events:none;
-            text-shadow: 0 1px 0 rgba(0,0,0,0.12);
-            z-index:12;
-        }
-
-        @media (max-width:900px){
-            :root{
-                --plane-width: clamp(160px, 36vw, 360px);
-                --bob-duration: 3.6s;
-                --dots-duration: 1.4s;
-            }
-            .loading-word { font-size: clamp(24px, 7.5vw, 44px); }
-            .dot { font-size: clamp(24px, 7.5vw, 44px); }
-        }
-        @media (max-width:600px){
-            :root{
-                --plane-width: clamp(120px, 46vw, 240px);
-                --bob-duration: 3.2s;
-                --dots-duration: 1.2s;
-            }
-            .center-stage{ gap:12px }
-            .loading-word { font-size: clamp(20px, 10vw, 34px); }
-            .dot { font-size: clamp(20px, 10vw, 34px); }
-        }
-
-        /* Show the active iframe */
-        .tab-content.active iframe {
+        .tab-content.active {
             display: block;
         }
         
-        /* Styles for iframes to take up available space */
         .iframe-container {
             width: 100%;
-            height: 80vh; /* Occupy most of the viewport height */
+            height: 75vh;
             border-radius: 12px;
             overflow: hidden;
-            background-color: #fff; /* Background for the iframe */
-        }
-
-        .iframe-container iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            display: block;
-        }
-
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
+            border: 1px solid var(--border-glow);
         }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col items-center p-4 sm:p-8">
+<body class="min-h-screen flex flex-col items-center p-4 sm:p-8">
 
-    <!-- Loading screen with airplane, clouds, and text animation -->
-    <div class="loading-screen" id="loading-screen" role="status" aria-live="polite">
-        <div class="sky" aria-hidden="true"></div>
-
-        <!-- Nubes dispersas por la pantalla -->
-        <div class="cloud cloud--1" aria-hidden="true"></div>
-        <div class="cloud cloud--2 centered" aria-hidden="true"></div>
-        <div class="cloud cloud--3" aria-hidden="true"></div>
-        <div class="cloud cloud--4" aria-hidden="true"></div>
-        <div class="cloud cloud--5 centered" aria-hidden="true"></div>
-        <div class="cloud cloud--6" aria-hidden="true"></div>
-        <div class="cloud cloud--7" aria-hidden="true"></div>
-
-        <!-- Centro: avión y texto de carga -->
-        <div class="center-stage" aria-hidden="false">
-            <img
-                id="plane"
-                class="plane"
-                src="https://images.vexels.com/media/users/3/145795/isolated/preview/05cd33059a006bf49006097af4ccba98-plane-in-flight-by-vexels.png"
-                alt="Avión en vuelo"
-                onerror="this.style.display='none'; document.getElementById('plane-fallback').style.display='block';"
-            />
-
-            <!-- Fallback SVG si la imagen remota no carga -->
-            <svg id="plane-fallback" class="plane fallback" viewBox="0 0 512 512" aria-hidden="true" role="img" style="display:none" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <linearGradient id="g1" x1="0" x2="1">
-                        <stop offset="0" stop-color="#ffffff"/>
-                        <stop offset="1" stop-color="#e6eef6"/>
-                    </linearGradient>
-                    <linearGradient id="g2" x1="0" x2="1">
-                        <stop offset="0" stop-color="#0f4ea8"/>
-                        <stop offset="1" stop-color="#1b6cd5"/>
-                    </linearGradient>
-                </defs>
-                <g transform="translate(0,0)">
-                    <path d="M48 256c0 0 96-24 224-24s224 24 224 24-96 24-224 24S48 256 48 256z"
-                          fill="url(#g1)" stroke="#d7e7f6" stroke-width="2" opacity="0.98"/>
-                    <path d="M88 208c88-36 336-36 392 0v14c-56-26-304-34-392 0v-14z" fill="#f8fbff" opacity="0.95"/>
-                    <g fill="#cfe8ff" opacity="0.9" transform="translate(140,228)">
-                        <rect x="0" y="0" width="12" height="8" rx="2"/><rect x="20" y="0" width="12" height="8" rx="2"/>
-                        <rect x="40" y="0" width="12" height="8" rx="2"/><rect x="60" y="0" width="12" height="8" rx="2"/>
-                        <rect x="80" y="0" width="12" height="8" rx="2"/><rect x="100" y="0" width="12" height="8" rx="2"/>
-                        <rect x="120" y="0" width="12" height="8" rx="2"/><rect x="140" y="0" width="12" height="8" rx="2"/>
-                        <rect x="160" y="0" width="12" height="8" rx="2"/><rect x="180" y="0" width="12" height="8" rx="2"/>
-                    </g>
-                    <path d="M400 152 L456 112 L472 120 L420 168 Z" fill="url(#g2)" stroke="#0b3f88" stroke-width="1.2"/>
-                    <path d="M408 188 L480 156 L492 166 L428 206 Z" fill="#2a63b8" opacity="0.95"/>
-                    <path d="M180 300 L360 220 L380 232 L200 312 Z" fill="#f3f8ff" stroke="#d0e4fb" stroke-width="1"/>
-                    <path d="M200 292 L360 236 L392 244 L220 312 Z" fill="#e9f3ff" opacity="0.7"/>
-                    <ellipse cx="300" cy="280" rx="26" ry="18" fill="#e6eef6"/><ellipse cx="300" cy="280" rx="18" ry="12" fill="#d6e8fb"/>
-                    <path d="M48 256c22-8 44-12 68-14 0 0 0 0 0 0 0 0 6 22-10 30-20 10-58 0-58 0z" fill="#f8fbff" opacity="0.95"/>
-                </g>
-            </svg>
-
-            <div class="loading" aria-live="polite" aria-atomic="true">
-                <span class="loading-word">Loading</span>
-                <span class="loading-dots" aria-hidden="true">
-                    <span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span>
-                </span>
-            </div>
-        </div>
-
-        <div class="footer">© Isaac Hernan 2026 | All right reserved</div>
-    </div>
-
-    <!-- Main Application Container -->
-    <div id="main-content" class="w-full max-w-4xl bg-gray-800 rounded-2xl shadow-xl overflow-hidden hidden">
+    <div id="main-content" class="w-full max-w-5xl custom-card rounded-2xl shadow-2xl overflow-hidden flex flex-col min-h-[85vh]">
         
-        <!-- Header and Navigation -->
-        <header class="bg-gray-800 p-6 flex flex-col sm:flex-row items-center justify-between border-b border-gray-700">
-            <div class="flex items-center space-x-4 mb-4 sm:mb-0">
-                <div class="text-4xl text-blue-400">✈️</div>
-                <h1 class="text-3xl font-bold tracking-tight">First Officer Bot</h1>
+        <header class="p-6 flex flex-col md:flex-row items-center justify-between border-b border-cyan-900/40 gap-4">
+            <div class="flex items-center space-x-4">
+                <div class="text-4xl filter drop-shadow-[0_0_8px_rgba(31,162,255,0.6)]">✈️</div>
+                <div>
+                    <h1 class="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white to-blue-300 bg-clip-text text-transparent">
+                        FIRST OFFICER BOT
+                    </h1>
+                    <p class="text-xs text-blue-400 font-mono tracking-widest uppercase">By Isaac Hernan</p>
+                </div>
             </div>
-            <nav class="flex space-x-2 sm:space-x-4">
-                <button onclick="showTab('home')" class="tab-button bg-gray-700 hover:bg-gray-600 text-gray-100 py-2 px-4 rounded-full transition-colors duration-200">Home</button>
-                <button onclick="showTab('features')" class="tab-button bg-gray-700 hover:bg-gray-600 text-gray-100 py-2 px-4 rounded-full transition-colors duration-200">Features</button>
-                <button onclick="showTab('terms')" class="tab-button bg-gray-700 hover:bg-gray-600 text-gray-100 py-2 px-4 rounded-full transition-colors duration-200">Terms</button>
-                <button onclick="showTab('privacy')" class="tab-button bg-gray-700 hover:bg-gray-600 text-gray-100 py-2 px-4 rounded-full transition-colors duration-200">Privacy Policy</button>
+            <nav class="flex flex-wrap gap-2 justify-center">
+                <button onclick="showTab('home')" id="btn-home" class="tab-button bg-slate-900/60 hover:bg-slate-800 text-gray-300 py-2 px-4 rounded-xl transition-all duration-200 font-medium text-sm border border-slate-700/50">Home</button>
+                <button onclick="showTab('features')" id="btn-features" class="tab-button bg-slate-900/60 hover:bg-slate-800 text-gray-300 py-2 px-4 rounded-xl transition-all duration-200 font-medium text-sm border border-slate-700/50">Commands & Features</button>
+                <button onclick="showTab('terms')" id="btn-terms" class="tab-button bg-slate-900/60 hover:bg-slate-800 text-gray-300 py-2 px-4 rounded-xl transition-all duration-200 font-medium text-sm border border-slate-700/50">Terms</button>
+                <button onclick="showTab('privacy')" id="btn-privacy" class="tab-button bg-slate-900/60 hover:bg-slate-800 text-gray-300 py-2 px-4 rounded-xl transition-all duration-200 font-medium text-sm border border-slate-700/50">Privacy Policy</button>
             </nav>
         </header>
 
-        <!-- Tab Content -->
-        <main class="p-6">
-            <!-- Home tab content -->
-            <div id="home" class="tab-content active">
-                <!-- Banner image for the home section -->
-                <img src="./banner.png" alt="First Officer Bot Telegram Banner" class="w-full h-auto rounded-xl mb-6 shadow-lg object-cover">
-                <h2 class="text-2xl sm:text-3xl font-bold mb-4 text-center">Welcome to First Officer Bot</h2>
-                <p class="text-lg text-gray-400 mb-6 text-center">
-                    Your Telegram bot companion for aviation, designed to help you with information, calculations, and more.
+        <main class="p-6 flex-grow">
+            
+            <div id="home" class="tab-content active text-center max-w-3xl mx-auto py-8">
+                <div class="relative mb-8 rounded-xl overflow-hidden shadow-2xl border border-blue-500/20">
+                    <img src="./banner.png" alt="First Officer Bot Telegram Banner" class="w-full h-auto object-cover min-h-[200px] bg-slate-950">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent flex items-end p-6">
+                        <p class="text-left text-sm md:text-base text-blue-200 font-medium">Your essential aviation tools, always ready.</p>
+                    </div>
+                </div>
+                
+                <h2 class="text-3xl font-bold mb-4">Welcome to First Officer Bot 🤖</h2>
+                <p class="text-lg text-gray-400 mb-8 leading-relaxed">
+                    Your advanced Telegram companion for flight simulation and aviation. Packed with charts, live radar data, meteorological tools, and high-fidelity navigation calculators.
                 </p>
-                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 justify-center">
-                    <a href="https://t.me/first_officer_bot" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-full transition-colors duration-200">
-                        <i class="fab fa-telegram-plane mr-2"></i>Go to Telegram Bot
+                
+                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 justify-center items-center">
+                    <a href="https://t.me/first_officer_bot" target="_blank" class="w-full sm:w-auto bg-sky-600 hover:bg-sky-500 text-white font-bold py-3.5 px-8 rounded-xl transition-all shadow-lg shadow-sky-600/20 flex items-center justify-center gap-2">
+                        <i class="fab fa-telegram-plane text-xl"></i> Launch on Telegram
                     </a>
-                    <a href="https://t.me/fob_support" target="_blank" class="bg-gray-700 hover:bg-gray-600 text-gray-100 font-semibold py-3 px-6 rounded-full transition-colors duration-200">
-                        <i class="fab fa-telegram-plane mr-2"></i>Join the Telegram Group
+                    <a href="https://t.me/fob_support" target="_blank" class="w-full sm:w-auto bg-slate-900/80 hover:bg-slate-800 text-gray-200 font-semibold py-3.5 px-8 rounded-xl transition-all border border-slate-700 flex items-center justify-center gap-2">
+                        <i class="fas fa-comments text-lg text-sky-400"></i> Join Support Group
                     </a>
                 </div>
             </div>
 
             <div id="features" class="tab-content hidden">
-                <h2 class="text-2xl font-bold mb-4">Features</h2>
+                <div class="mb-6 border-b border-slate-700/40 pb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Aviation Command Guide</h2>
+                        <p class="text-sm text-gray-400">Explore all available modules and syntax for First Officer Bot.</p>
+                    </div>
+                    <span class="text-xs font-mono bg-blue-950/60 text-blue-400 border border-blue-800/40 px-3 py-1.5 rounded-lg">
+                        Total Modules: 16
+                    </span>
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
-                        <h3 class="text-lg font-semibold mb-3">⭐️ General Commands</h3>
-                        <ul class="text-gray-300 space-y-2">
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/start</span> - Start using the bot</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/commands</span> - Full list of commands</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/credits</span> - Bot credits</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/legal</span> - Terms of Service</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/privacy</span> - Privacy Policy</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/clear</span> - Remove buttons</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/help</span> - Get help using the bot</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/support</span> - Get support</li>
+                    <div class="bg-slate-900/40 p-5 rounded-xl border border-slate-800/60">
+                        <h3 class="text-md font-bold mb-3 text-sky-400 flex items-center gap-2">⭐️ General Commands</h3>
+                        <ul class="text-sm text-gray-300 space-y-2.5">
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/start</span> - Start using the bot</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/commands</span> - Friendly command guide</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/commands_full</span> - Full list of commands</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/credits</span> - Bot credits</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/legal</span> - Terms of Service</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/privacy</span> - Privacy Policy</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/clear</span> - Remove buttons</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/help</span> - Get help using the bot</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/support</span> - Get support</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/version</span> - Get current bot version and release notes</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/feedback</span> - Send feedback about the bot</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/minigame</span> - Play aviation minigame</li>
                         </ul>
                     </div>
-                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
-                        <h3 class="text-lg font-semibold mb-3">⏰ Time</h3>
-                        <ul class="text-gray-300 space-y-2">
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/zulu</span> - Get Zulu (UTC) time</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/time &lt;ICAO CODE&gt;</span> - Get local time at airport</li>
+
+                    <div class="bg-slate-900/40 p-5 rounded-xl border border-slate-800/60">
+                        <h3 class="text-md font-bold mb-3 text-sky-400 flex items-center gap-2">⏰ Time</h3>
+                        <ul class="text-sm text-gray-300 space-y-2.5">
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/zulu</span> - Get Zulu (UTC) time</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/time &lt;ICAO CODE&gt;</span> - Get local time at airport</li>
                         </ul>
                     </div>
-                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
-                        <h3 class="text-lg font-semibold mb-3">🌧️ Weather</h3>
-                        <ul class="text-gray-300 space-y-2">
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/vatsim_metar &lt;ICAO CODE&gt;</span> - METAR from Vatsim</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/ivao_metar &lt;ICAO CODE&gt;</span> - METAR from IVAO</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/metar &lt;ICAO CODE&gt;</span> - METAR from NOAA</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/taf &lt;ICAO CODE&gt;</span> - TAF from NOAA</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/graphic_metar &lt;ICAO CODE&gt;</span> - Shows a Graphic METAR and TAF</li>
+
+                    <div class="bg-slate-900/40 p-5 rounded-xl border border-slate-800/60">
+                        <h3 class="text-md font-bold mb-3 text-sky-400 flex items-center gap-2">🌧️ Weather</h3>
+                        <ul class="text-sm text-gray-300 space-y-2.5">
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/metar &lt;ICAO CODE&gt;</span> - METAR from NOAA</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/taf &lt;ICAO CODE&gt;</span> - TAF from NOAA</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/graphic_metar &lt;ICAO CODE&gt;</span> - Shows a Graphic METAR and TAF</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/sigmet</span> - SIGMET information for a FIR</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/airmet &lt;FIR CODE&gt;</span> - AIRMET information for a FIR</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/pirep &lt;ICAO CODE&gt;</span> - PIREP reports for an airport</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/pdwb</span> - Shows Pre-Duty Weather Briefings Videos only for U.S airports</li>
                         </ul>
                     </div>
-                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
-                        <h3 class="text-lg font-semibold mb-3">🗺️ Charts</h3>
-                        <ul class="text-gray-300 space-y-2">
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/charts &lt;AIRPORT CODE&gt;</span> - General airport chart</li>
+
+                    <div class="bg-slate-900/40 p-5 rounded-xl border border-slate-800/60">
+                        <h3 class="text-md font-bold mb-3 text-sky-400 flex items-center gap-2">🗺️ Charts</h3>
+                        <ul class="text-sm text-gray-300 space-y-2.5">
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/charts &lt;AIRPORT CODE&gt;</span> - Airports Official Charts</li>
                         </ul>
                     </div>
-                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
-                        <h3 class="text-lg font-semibold mb-3">✈️ ICAO & Airports</h3>
-                        <ul class="text-gray-300 space-y-2">
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/icao_search &lt;TEXT&gt;</span> - Find airport code</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/icao_info &lt;ICAO CODE&gt;</span> - Info about airport</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/icao_airline_code &lt;ICAO CODE&gt;</span> - Find airline data by ICAO code</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/icao_airline_name &lt;ICAO CODE&gt;</span> - Find airline data by name</li>
+
+                    <div class="bg-slate-900/40 p-5 rounded-xl border border-slate-800/60">
+                        <h3 class="text-md font-bold mb-3 text-sky-400 flex items-center gap-2">✈️ ICAO & Airports</h3>
+                        <ul class="text-sm text-gray-300 space-y-2.5">
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/icao_search &lt;TEXT&gt;</span> - Search airport code</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/icao_info &lt;ICAO CODE&gt;</span> - Search about airport</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/icao_airline_code &lt;ICAO CODE&gt;</span> - Search airline data by ICAO code</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/icao_airline_name &lt;ICAO CODE&gt;</span> - Search airline data by name</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/icao_aircraft &lt;ICAO CODE&gt;</span> - Search aircraft information by ICAO code</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/icao_aircraft_name &lt;ICAO CODE&gt;</span> - Search aircraft info and ICAO code by name</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/go_spotting</span> - Check live airport spotting webcams</li>
                         </ul>
                     </div>
-                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
-                        <h3 class="text-lg font-semibold mb-3">☁️ IVAO</h3>
-                        <ul class="text-gray-300 space-y-2">
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/ivao_status</span> - IVAO server status</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/ivao_atis &lt;ICAO CODE&gt;</span> - ATIS from IVAO</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/ivao_voice_atis &lt;ICAO CODE&gt;</span> - Voice ATIS from IVAO</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/webeye</span> - Launch IVAO WebEye in this Chat</li>
+
+                    <div class="bg-slate-900/40 p-5 rounded-xl border border-slate-800/60">
+                        <h3 class="text-md font-bold mb-3 text-sky-400 flex items-center gap-2">☁️ IVAO</h3>
+                        <ul class="text-sm text-gray-300 space-y-2.5">
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/ivao_status</span> - IVAO server status</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/ivao_metar &lt;ICAO CODE&gt;</span> - METAR from IVAO</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/ivao_atis &lt;ICAO CODE&gt;</span> - ATIS from IVAO</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/ivao_voice_atis &lt;ICAO CODE&gt;</span> - Voice ATIS from IVAO</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/webeye</span> - Launch IVAO WebEye in this Chat</li>
                         </ul>
                     </div>
-                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
-                        <h3 class="text-lg font-semibold mb-3">☁️ Vatsim</h3>
-                        <ul class="text-gray-300 space-y-2">
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/vatsim_status</span> - Vatsim server status</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/vatsim_metar &lt;ICAO CODE&gt;</span> - METAR from Vatsim</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/vatsim_flightplan &lt;User ID&gt;</span> - Vatsim user flightplan</li>
+
+                    <div class="bg-slate-900/40 p-5 rounded-xl border border-slate-800/60">
+                        <h3 class="text-md font-bold mb-3 text-sky-400 flex items-center gap-2">☁️ Vatsim</h3>
+                        <ul class="text-sm text-gray-300 space-y-2.5">
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/vatsim_status</span> - Vatsim server status</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/vatsim_metar &lt;ICAO CODE&gt;</span> - METAR from Vatsim</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/vatsim_flightplan &lt;User ID&gt;</span> - Vatsim user flightplan</li>
                         </ul>
                     </div>
-                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
-                        <h3 class="text-lg font-semibold mb-3">💡 Knowledge</h3>
-                        <ul class="text-gray-300 space-y-2">
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/concept &lt;CONCEPT&gt;</span> - Aviation concept/abbreviation info</li>
+
+                    <div class="bg-slate-900/40 p-5 rounded-xl border border-slate-800/60">
+                        <h3 class="text-md font-bold mb-3 text-sky-400 flex items-center gap-2">💡 Knowledge</h3>
+                        <ul class="text-sm text-gray-300 space-y-2.5">
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/concept &lt;CONCEPT&gt;</span> - Aviation concept/abbreviation info</li>
                         </ul>
                     </div>
-                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
-                        <h3 class="text-lg font-semibold mb-3">🧮 Calculation Commands</h3>
-                        <ul class="text-gray-300 space-y-2">
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/haversine &lt;lat1&gt; &lt;lon1&gt; &lt;lat2&gt; &lt;lon2&gt;</span> - Distance between two coordinates</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/airports_haversine &lt;ICAO1&gt; &lt;ICAO2&gt;</span> - Distance between two airports</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/true_airspeed &lt;IAS&gt; &lt;ALT_FT&gt; &lt;TEMP_C&gt;</span> - True Airspeed</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/fuel_consumption &lt;FLOW_LPH&gt; &lt;HOURS&gt;</span> - Fuel consumption</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/density_altitude &lt;PRESS_ALT_FT&gt; &lt;TEMP_C&gt;</span> - Density altitude</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/fuel_range &lt;FUEL_L&gt; &lt;FLOW_LPH&gt; &lt;TAS_KMH&gt;</span> - Maximum range</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/flight_time &lt;FUEL_L&gt; &lt;FLOW_LPH&gt;</span> - Maximum flight time</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/gallons_to_liters &lt;GAL&gt;</span> - Gallons to liters</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/liters_to_gallons &lt;LITERS&gt;</span> - Liters to gallons</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/kg_to_liters &lt;KG&gt; [&lt;DENSITY&gt;]</span> - Kg to liters of fuel</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/fuel_per_distance &lt;FLOW_LPH&gt; &lt;TAS_KMH&gt;</span> - Fuel consumption per km</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/knots_to_kmh &lt;KNOTS&gt;</span> - Knots to kmh</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/kmh_to_knots &lt;KMH&gt;</span> - Kmh to knots</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/knots_to_mph &lt;KNOTS&gt;</span> - Knots to mph</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/mph_to_knots &lt;MPH&gt;</span> - Mph to knots</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/ground_speed &lt;TAS&gt; &lt;WIND_SPEED&gt; &lt;WIND_DIR&gt; &lt;TRACK&gt;</span> - Ground speed</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/heading &lt;TAS&gt; &lt;WIND_SPEED&gt; &lt;WIND_DIR&gt; &lt;TRACK&gt;</span> - Heading</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/estimated_enroute_time &lt;DIST_KM&gt; &lt;GS_KMH&gt;</span> - Estimated enroute time</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/pnr &lt;FUEL_L&gt; &lt;FLOW_OUT_LPH&gt; &lt;FLOW_BACK_LPH&gt; &lt;GS_OUT_KMH&gt; &lt;GS_BACK_KMH&gt;</span> - Point of No Return (PNR)</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/eqpt &lt;DIST_KM&gt; &lt;GS_OUT_KMH&gt; &lt;GS_BACK_KMH&gt;</span> - Equal Time Point (ETP)</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/takeoff_distance &lt;WEIGHT_KG&gt; &lt;DENSITY_ALT_FT&gt; [&lt;FLAP&gt;] [&lt;SLOPE&gt;]</span> - Takeoff distance</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/landing_distance &lt;WEIGHT_KG&gt; &lt;DENSITY_ALT_FT&gt; [&lt;FLAP&gt;] [&lt;SLOPE&gt;]</span> - Landing distance</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/weight_and_balance &lt;EMPTY_W_KG&gt; &lt;EMPTY_ARM_M&gt; &lt;FUEL_W_KG&gt; &lt;FUEL_ARM_M&gt; &lt;PAYLOAD_W_KG&gt; &lt;PAYLOAD_ARM_M&gt;</span> - Weight and balance</li>
+
+                    <div class="bg-slate-900/40 p-5 rounded-xl border border-slate-800/60 md:col-span-2">
+                        <h3 class="text-md font-bold mb-3 text-sky-400 flex items-center gap-2">🧮 Calculation Commands</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2.5 text-sm text-gray-300">
+                            <div><span class="command-badge px-1.5 py-0.5 text-xs rounded">/haversine &lt;lat1&gt; &lt;lon1&gt; &lt;lat2&gt; &lt;lon2&gt;</span> - Distance between coordinates</div>
+                            <div><span class="command-badge px-1.5 py-0.5 text-xs rounded">/airports_haversine &lt;ICAO1&gt; &lt;ICAO2&gt;</span> - Distance between airports</div>
+                            <div><span class="command-badge px-1.5 py-0.5 text-xs rounded">/true_airspeed &lt;IAS&gt; &lt;ALT_FT&gt; &lt;TEMP_C&gt;</span> - True Airspeed</div>
+                            <div><span class="command-badge px-1.5 py-0.5 text-xs rounded">/fuel_consumption &lt;FLOW_LPH&gt; &lt;HOURS&gt;</span> - Fuel consumption</div>
+                            <div><span class="command-badge px-1.5 py-0.5 text-xs rounded">/density_altitude &lt;PRESS_ALT_FT&gt; &lt;TEMP_C&gt;</span> - Density altitude</div>
+                            <div><span class="command-badge px-1.5 py-0.5 text-xs rounded">/fuel_range &lt;FUEL_L&gt; &lt;FLOW_LPH&gt; &lt;TAS_KMH&gt;</span> - Maximum range</div>
+                            <div><span class="command-badge px-1.5 py-0.5 text-xs rounded">/flight_time &lt;FUEL_L&gt; &lt;FLOW_LPH&gt;</span> - Maximum flight time</div>
+                            <div><span class="command-badge px-1.5 py-0.5 text-xs rounded">/gallons_to_liters &lt;GAL&gt;</span> - Gallons to liters</div>
+                            <div><span class="command-badge px-1.5 py-0.5 text-xs rounded">/liters_to_gallons &lt;LITERS&gt;</span> - Liters to gallons</div>
+                            <div><span class="command-badge px-1.5 py-0.5 text-xs rounded">/kg_to_liters &lt;KG&gt; [&lt;DENSITY&gt;]</span> - Kg to liters of fuel</div>
+                            <div><span class="command-badge px-1.5 py-0.5 text-xs rounded">/fuel_per_distance &lt;FLOW_LPH&gt; &lt;TAS_KMH&gt;</span> - Fuel consumption per km</div>
+                            <div><span class="command-badge px-1.5 py-0.5 text-xs rounded">/knots_to_kmh &lt;KNOTS&gt;</span> - Knots to kmh</div>
+                            <div><span class="command-badge px-1.5 py-0.5 text-xs rounded">/kmh_to_knots &lt;KMH&gt;</span> - Kmh to knots</div>
+                            <div><span class="command-badge px-1.5 py-0.5 text-xs rounded">/knots_to_mph &lt;KNOTS&gt;</span> - Knots to mph</div>
+                            <div><span class="command-badge px-1.5 py-0.5 text-xs rounded">/mph_to_knots &lt;MPH&gt;</span> - Mph to knots</div>
+                            <div><span class="command-badge px-1.5 py-0.5 text-xs rounded">/ground_speed &lt;TAS&gt; &lt;WIND_SPEED&gt; &lt;WIND_DIR&gt; &lt;TRACK&gt;</span> - Ground speed</div>
+                            <div><span class="command-badge px-1.5 py-0.5 text-xs rounded">/heading &lt;TAS&gt; &lt;WIND_SPEED&gt; &lt;WIND_DIR&gt; &lt;TRACK&gt;</span> - Heading</div>
+                            <div><span class="command-badge px-1.5 py-0.5 text-xs rounded">/estimated_enroute_time &lt;DIST_KM&gt; &lt;GS_KMH&gt;</span> - Estimated enroute time</div>
+                            <div><span class="command-badge px-1.5 py-0.5 text-xs rounded">/pnr &lt;FUEL_L&gt;...</span> - Point of No Return (PNR)</div>
+                            <div><span class="command-badge px-1.5 py-0.5 text-xs rounded">/eqpt &lt;DIST_KM&gt;...</span> - Equal Time Point (ETP)</div>
+                            <div><span class="command-badge px-1.5 py-0.5 text-xs rounded">/takeoff_distance &lt;WEIGHT_KG&gt;...</span> - Takeoff distance</div>
+                            <div><span class="command-badge px-1.5 py-0.5 text-xs rounded">/landing_distance &lt;WEIGHT_KG&gt;...</span> - Landing distance</div>
+                            <div><span class="command-badge px-1.5 py-0.5 text-xs rounded">/weight_and_balance &lt;EMPTY_W_KG&gt;...</span> - Weight and balance</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/40 p-5 rounded-xl border border-slate-800/60">
+                        <h3 class="text-md font-bold mb-3 text-sky-400 flex items-center gap-2">📡 Aircraft Radar</h3>
+                        <ul class="text-sm text-gray-300 space-y-2.5">
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/flight_callsign &lt;CALLSIGN&gt;</span> - Details of a flight by callsign</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/flights_airport &lt;ICAO or IATA CODE&gt;</span> - Flights near an airport (25NM)</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/flights_registration &lt;REGISTRATION&gt;</span> - Details of a flight by registration</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/nearby_flights &lt;LATITUDE&gt; &lt;LONGITUDE&gt;</span> - Flights near coordinates (25NM)</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/safesky</span> - Launch SafeSky live map in this Chat</li>
+                        </ul>
+                        <p class="mt-3 text-xs text-blue-300/80 italic">💡 Or send your live location via Telegram directly to track flights near you! (Data is never stored).</p>
+                    </div>
+
+                    <div class="bg-slate-900/40 p-5 rounded-xl border border-slate-800/60">
+                        <h3 class="text-md font-bold mb-3 text-sky-400 flex items-center gap-2">🌍 SIGWX Charts</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-300">
+                            <div><span class="command-badge px-1 py-0.5 rounded">/spain_sigwx</span> - Spain</div>
+                            <div><span class="command-badge px-1 py-0.5 rounded">/europe_sigwx</span> - Europe</div>
+                            <div><span class="command-badge px-1 py-0.5 rounded">/northatlantic_sigwx</span> - N. Atlantic</div>
+                            <div><span class="command-badge px-1 py-0.5 rounded">/europe_south_america_sigwx</span> - EU & SA</div>
+                            <div><span class="command-badge px-1 py-0.5 rounded">/europe_africa_sigwx</span> - EU & Africa</div>
+                            <div><span class="command-badge px-1 py-0.5 rounded">/europe_asia_sigwx</span> - EU & Asia</div>
+                            <div><span class="command-badge px-1 py-0.5 rounded">/middle_east_sigwx</span> - Middle East</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/40 p-5 rounded-xl border border-slate-800/60">
+                        <h3 class="text-md font-bold mb-3 text-sky-400 flex items-center gap-2">🌧️ Winds and Forecast Charts</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-300">
+                            <div><span class="command-badge px-1 py-0.5 rounded">/wind_spain</span> - Wind Spain</div>
+                            <div><span class="command-badge px-1 py-0.5 rounded">/surface_forecast_spain</span> - Surface Forecast Spain</div>
+                            <div><span class="command-badge px-1 py-0.5 rounded">/wind_europe</span> - Wind Europe</div>
+                            <div><span class="command-badge px-1 py-0.5 rounded">/wind_northatlantic</span> - Wind N. Atlantic</div>
+                            <div><span class="command-badge px-1 py-0.5 rounded">/wind_europe_south_america</span> - Wind EU & SA</div>
+                            <div><span class="command-badge px-1 py-0.5 rounded">/wind_europe_africa</span> - Wind EU & Africa</div>
+                            <div><span class="command-badge px-1 py-0.5 rounded">/wind_europe_asia</span> - Wind EU & Asia</div>
+                            <div><span class="command-badge px-1 py-0.5 rounded">/wind_middle_east</span> - Wind Middle East</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/40 p-5 rounded-xl border border-slate-800/60">
+                        <h3 class="text-md font-bold mb-3 text-sky-400 flex items-center gap-2">🧮 Calculators</h3>
+                        <ul class="text-sm text-gray-300 space-y-2.5">
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/cr3</span> - CR3 Calculator</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/e6b</span> - E6B Calculator</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/cx3</span> - ASA CX3 Calculator</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/calculator</span> - Calculator App</li>
                         </ul>
                     </div>
-                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
-                        <h3 class="text-lg font-semibold mb-3">📡 Aircraft Radar</h3>
-                        <ul class="text-gray-300 space-y-2">
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/flight_callsign &lt;CALLSIGN&gt;</span> - Details of a flight by callsign</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/flights_airport &lt;ICAO or IATA CODE&gt;</span> - Flights near an airport ICAO code (25NM)</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/flights_registration &lt;REGISTRATION&gt;</span> - Details of a flight by registration</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/nearby_flights &lt;LATITUDE&gt; &lt;LONGITUDE&gt;</span> - Flights near coordinates (25NM)</li>
-                        </ul>
-                        <p class="mt-4 text-gray-400">Or send your location via Telegram to see flights near you!! (We don't store this data, even thought you can send only your approximated location or a custom one with the map)</p>
-                    </div>
-                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
-                        <h3 class="text-lg font-semibold mb-3">🌍 SIGWX Charts</h3>
-                        <ul class="text-gray-300 space-y-2">
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/spain_sigwx</span> - Significant Weather Chart for Spain</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/europe_sigwx</span> - Significant Weather Chart for Europe</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/northatlantic_sigwx</span> - Significant Weather Chart for North Atlantic</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/europe_south_america_sigwx</span> - Europe & South America SIGWX</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/europe_africa_sigwx</span> - Europe & Africa SIGWX</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/europe_asia_sigwx</span> - Europe & Asia SIGWX</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/middle_east_sigwx</span> - Middle East SIGWX</li>
+
+                    <div class="bg-slate-900/40 p-5 rounded-xl border border-slate-800/60">
+                        <h3 class="text-md font-bold mb-3 text-sky-400 flex items-center gap-2">📋 Ops & Planning</h3>
+                        <ul class="text-sm text-gray-300 space-y-2.5">
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/checklists</span> - Open checklists app</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/notam &lt;ICAO/FIR&gt;</span> - Get NOTAMs for airport or FIR</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/flight_plan &lt;ORIGIN&gt; &lt;DEST&gt;</span> - Get flight plan route</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/fpl_validator &lt;FPL TEXT&gt;</span> - Validate plan for EUROCONTROL</li>
                         </ul>
                     </div>
-                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
-                        <h3 class="text-lg font-semibold mb-3">🌧️ Winds and forecast charts</h3>
-                        <ul class="text-gray-300 space-y-2">
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/wind_spain</span> - Wind Chart for Spain</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/surface_forecast_spain</span> - Surface forecast Chart for Spain</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/wind_europe</span> - Wind Chart for Europe</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/wind_northatlantic</span> - Wind Chart for North Atlantic</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/wind_europe_south_america</span> - Wind Chart for Europe & South America</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/wind_europe_africa</span> - Wind Chart for Europe & Africa</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/wind_europe_asia</span> - Wind Chart for Europe & Asia</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/wind_middle_east</span> - Wind Chart for Middle East</li>
-                        </ul>
-                    </div>
-                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
-                        <h3 class="text-lg font-semibold mb-3">🧮 Calculators</h3>
-                        <ul class="text-gray-300 space-y-2">
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/cr3</span> - CR3 Calculator</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/e6b</span> - E6B Calculator</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/cx3</span> - ASA CX3 Calculator</li>
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/calculator</span> - Calculator App</li>
-                        </ul>
-                    </div>
-                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
-                        <h3 class="text-lg font-semibold mb-3">📋 Checklists</h3>
-                        <ul class="text-gray-300 space-y-2">
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/checklists</span> - Open checklists app</li>
-                        </ul>
-                    </div>
-                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
-                        <h3 class="text-lg font-semibold mb-3">🚨 NOTAMs</h3>
-                        <ul class="text-gray-300 space-y-2">
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/notam &lt;ICAO CODE AIRPORT OR FIR&gt;</span> - Get NOTAMs for an airport or FIR with ICAO code</li>
-                        </ul>
-                    </div>
-                    <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
-                        <h3 class="text-lg font-semibold mb-3">📍 Flight Plans</h3>
-                        <ul class="text-gray-300 space-y-2">
-                            <li><span class="font-mono bg-gray-800 text-sm p-1 rounded">/flight_plan &lt;ORIGIN ICAO&gt; &lt;DESTINATION ICAO&gt;</span> - Get a flight plan between two airports</li>
+
+                    <div class="bg-slate-900/40 p-5 rounded-xl border border-slate-800/60">
+                        <h3 class="text-md font-bold mb-3 text-sky-400 flex items-center gap-2">🌐 Data feeds & Comms</h3>
+                        <ul class="text-sm text-gray-300 space-y-2.5">
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/news</span> - Get latest aviation news</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/navaid &lt;CODE&gt;</span> - Get info about a navaid</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/navaids_search &lt;TEXT&gt;</span> - Search navaids system</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/atis &lt;ICAO CODE&gt;</span> - Get ATIS information for U.S airports</li>
+                            <li><span class="command-badge px-1.5 py-0.5 text-xs rounded">/acars</span> - Read ACARS messages from real flights (by ACARS Drama)</li>
                         </ul>
                     </div>
                 </div>
             </div>
 
-            <!-- Terms of Service tab content -->
             <div id="terms" class="tab-content hidden">
-                <h2 class="text-2xl font-bold mb-4">Terms of Service</h2>
+                <h2 class="text-2xl font-bold mb-4 text-white">Terms of Service</h2>
                 <div class="iframe-container">
-                    <!-- Replaced deprecated <frame> with modern <iframe> -->
                     <iframe src="./terms_frame.html" title="Terms of Service" loading="lazy" sandbox="allow-same-origin allow-scripts allow-forms"></iframe>
                 </div>
             </div>
 
-            <!-- Privacy Policy tab content -->
             <div id="privacy" class="tab-content hidden">
-                <h2 class="text-2xl font-bold mb-4">Privacy Policy</h2>
+                <h2 class="text-2xl font-bold mb-4 text-white">Privacy Policy</h2>
                 <div class="iframe-container">
-                    <!-- Replaced deprecated <frame> with modern <iframe> -->
                     <iframe src="./privacy_policy_frame.html" title="Privacy Policy" loading="lazy" sandbox="allow-same-origin allow-scripts allow-forms"></iframe>
                 </div>
             </div>
         </main>
 
-        <!-- Footer -->
-        <footer class="p-6 text-center text-sm text-gray-500 border-t border-gray-700 mt-auto">
-            © 2026 Isaac Hernan. All rights reserved.
+        <footer class="p-6 text-center text-xs text-slate-500 border-t border-slate-800/60 mt-auto">
+            © 2026 Isaac Hernan. All rights reserved. Powered by telemetry & aviation passion.
         </footer>
     </div>
 
     <script>
-        // Hide loading screen on page load
-        window.addEventListener('load', () => {
-            const loadingScreen = document.getElementById('loading-screen');
-            const mainContent = document.getElementById('main-content');
-            
-            // Wait for 4 seconds before fading out the loading screen
-            setTimeout(() => {
-                loadingScreen.style.opacity = '0';
-                setTimeout(() => {
-                    loadingScreen.style.display = 'none';
-                    mainContent.classList.remove('hidden');
-                    mainContent.classList.add('flex', 'flex-col', 'min-h-screen');
-                }, 500); // Wait for the opacity transition to complete
-            }, 4000); // 4 seconds
-        });
-
-        // Function to switch tabs
+        // Function to switch tabs cleanly
         function showTab(tabId) {
-            // Hide all tabs and remove active state
+            // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.add('hidden');
                 tab.classList.remove('active');
             });
-            // Show the selected tab and mark it active
+            
+            // Show selected tab
             const selected = document.getElementById(tabId);
             if (selected) {
                 selected.classList.remove('hidden');
                 selected.classList.add('active');
             }
 
-            // Update button appearance
+            // Reset navigation button designs
             document.querySelectorAll('.tab-button').forEach(button => {
-                button.classList.remove('bg-blue-600', 'text-white');
-                button.classList.add('bg-gray-700', 'text-gray-100');
+                button.classList.remove('active', 'bg-blue-600', 'text-white', 'shadow-lg');
+                button.classList.add('bg-slate-900/60', 'text-gray-300');
             });
-            const activeTabButton = document.querySelector(`[onclick="showTab('${tabId}')"]`);
+            
+            // Highlight current active button
+            const activeTabButton = document.getElementById(`btn-${tabId}`);
             if (activeTabButton) {
-                activeTabButton.classList.remove('bg-gray-700', 'text-gray-100');
-                activeTabButton.classList.add('bg-blue-600', 'text-white');
+                activeTabButton.classList.remove('bg-slate-900/60', 'text-gray-300');
+                activeTabButton.classList.add('active');
             }
         }
 
-        // Show home tab by default on load
+        // Default layout initialized on Home
         document.addEventListener('DOMContentLoaded', () => {
             showTab('home');
         });
